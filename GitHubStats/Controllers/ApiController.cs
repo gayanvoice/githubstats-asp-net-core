@@ -63,19 +63,19 @@ namespace GitHubStats.Controllers
             }
         }
 
-        [HttpGet("country/getGraph")]
-        public ActionResult<string> GetGraph()
-        {
-            GraphQLRequestModel graphQLRequestModel = new GraphQLRequestModel("india", 10, null);
-            var graphQLResponse =  _graphQLService.GetGraphQLHttpResponse(graphQLRequestModel);
-            try
-            {
-                return JsonSerializer
-                .Serialize(graphQLResponse, new JsonSerializerOptions { WriteIndented = true });
-            }
-            catch (Exception) { 
-                return BadRequest();
-            }
-        }
+        //[HttpGet("country/getGraph")]
+        //public ActionResult<string> GetGraph()
+        //{
+            //GraphQLRequestModel graphQLRequestModel = new GraphQLRequestModel("india", 10, null);
+            //var graphQLResponse =  _graphQLService.GetGraphQLHttpResponse(graphQLRequestModel);
+            //try
+         //   {
+           //     return JsonSerializer
+             //   .Serialize(graphQLResponse, new JsonSerializerOptions { WriteIndented = true });
+        //    }
+           // catch (Exception) { 
+         //       return BadRequest();
+          //  }
+       // }
     }
 }

@@ -7,6 +7,11 @@ namespace GitHubStats.Models
         public int MaxNumberOfRequests { get; set; }
         public int MaxRequestSize { get; set; }
         public int ElapsedTimeInSeconds { get; set; }
-        public List<string> Country { get; set; }
+        public List<CountryModel> Country { get; set; }
+        public class CountryModel
+        {
+            public string Name { get; set; }
+            public List<string> City { get; set;  }
+        }
     }
 }
