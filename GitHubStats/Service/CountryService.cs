@@ -1,40 +1,43 @@
 ﻿using GitHubStats.Context;
 using GitHubStats.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using static GitHubStats.Models.GraphQLResponseModel.SearchModel.EdgeModel;
 
 namespace GitHubStats.Service
 {
-    public class CountryService
+    public class CountryService : ICountryService
     {
-        private IMongoCollection<CountryModel> collection;
-
+        private IMongoCollection<UserBsonModel> collection;
+       
         public CountryService(MongoModel mongoModel)
         {
             collection = new MongoContext(mongoModel)
                 .database
-                .GetCollection<CountryModel>(mongoModel.Collection.User);
+                .GetCollection<UserBsonModel>(mongoModel.Collection.User);
         }
-        public List<CountryModel> GetList()
+        public List<UserBsonModel> GetUserListByCountry(FindUserRequestModel findUserRequestModel)
         {
-            return collection.Find(country => true).ToList();
+            var filter = Builders<UserBsonModel>.Filter.Eq("country", findUserRequestModel.CountryName);
+            return collection
+                .Find<UserBsonModel>(filter)        
+                .SortByDescending(user => user.ContributionsCollection.ContributionCalendar.TotalContributions)
+                .Limit(findUserRequestModel.Limit)
+                .Skip(findUserRequestModel.Skip)
+                .ToList();
         }
+        public async Task UpdateOneUserAsync(string countryName, UserNodeModel userNodeModel)
+        {
 
-        public CountryModel GetCountry(string countryName)
-        {
-            return collection.Find<CountryModel>(country => country.CountryName == countryName).FirstOrDefault();
-        }
+            BsonDocument bsonDocument = new BsonDocument();
+            bsonDocument.Add("$set", userNodeModel.ToBsonDocument().Add("country", countryName));
 
-        public CountryModel CreateCountry(CountryModel countryModel)
-        {
-            collection.InsertOne(countryModel);
-            return countryModel;
-        }
-
-        public void UpdateCountry(string countryName, CountryModel countryModel)
-        {
-            collection.ReplaceOne(country => country.CountryName == countryName, countryModel);
+            await collection.UpdateOneAsync(new BsonDocument { { "login", userNodeModel.login}},
+                                            bsonDocument,
+                                            new UpdateOptions{ IsUpsert = true });
         }
     }
 }

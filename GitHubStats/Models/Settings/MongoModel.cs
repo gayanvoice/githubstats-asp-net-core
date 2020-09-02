@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GitHubStats.Models
+﻿namespace GitHubStats.Models
 {
     public class MongoModel
     {

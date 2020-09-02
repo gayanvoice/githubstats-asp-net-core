@@ -31,7 +31,7 @@ namespace GitHubStats
             services.AddSingleton<GitHubModel>(sp => sp.GetRequiredService<IOptions<GitHubModel>>().Value);
             services.AddSingleton<CountryService>();
             services.AddHostedService<GraphQLService>();
-            services.AddTransient<IEdgeService, EdgeService>();
+            services.AddTransient<ICountryService, CountryService>();
             services.AddControllersWithViews().AddNewtonsoftJson();
             services.AddControllersWithViews(options =>
             {

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,7 +16,7 @@ namespace GitHubStats.Service
     {
         private readonly ILogger<GraphQLService> _logger;
         private readonly GraphQLHttpClient _graphQLHttpClient;
-        private readonly IEdgeService _edgeService;
+        private readonly ICountryService _countryService;
         private readonly GitHubModel _gitHubModel;
         private GitHubModel.CountryModel countryModel;
         private int numberOfRequests = 1;
@@ -25,12 +24,12 @@ namespace GitHubStats.Service
         private string endCursor = null;
         private GraphQLHttpResponse<GraphQLResponseModel> graphQLResponseModel;
         public GraphQLService(ILogger<GraphQLService> logger,
-                              IEdgeService edgeService,
+                              ICountryService countryService,
                               GraphQLModel graphModel,
                               GitHubModel gitHubModel)
         {
             _logger = logger;
-            _edgeService = edgeService;
+            _countryService = countryService;
             _graphQLHttpClient = new GraphQLContext(graphModel).graphQLHttpClient;
             _gitHubModel = gitHubModel;
             countryModel = _gitHubModel.Country.First();
@@ -39,7 +38,6 @@ namespace GitHubStats.Service
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Country {country}", countryModel.Name);
                 if (hasNextPage)
                 {
                     if (numberOfRequests <= _gitHubModel.MaxNumberOfRequests)
@@ -100,12 +98,12 @@ namespace GitHubStats.Service
         {
             var graphQLResponse = await GetGraphQLHttpResponse(graphQLRequestModel);
             {
-                foreach (GraphQLResponseModel.Search.Edge userNode in graphQLResponse.Data.search.edges)
+                foreach (GraphQLResponseModel.SearchModel.EdgeModel userNode in graphQLResponse.Data.search.edges)
                 {
                     if (!(userNode.node.login is null))
                     {
-                        await _edgeService.UpdateCountryAsync(userNode.node);
-                        _logger.LogInformation("Added User {user}", userNode.node.login);
+                        await _countryService.UpdateOneUserAsync(graphQLRequestModel.Country.Name, userNode.node);
+                        _logger.LogInformation("Updated User {user} {countryName}", userNode.node.login, graphQLRequestModel.Country.Name);
                     }
                 }  
             }
@@ -150,7 +148,7 @@ namespace GitHubStats.Service
                         }",
                 Variables = new
                 {
-                    search = graphQLRequestModel.Country.Name + " sort:followers-desc " + LocationBuilder(graphQLRequestModel.Country.City),
+                    search = graphQLRequestModel.Country.Search.First() + " sort:followers-desc " + LocationBuilder(graphQLRequestModel.Country.Search),
                     first = graphQLRequestModel.NumberOfUsers,
                     after = graphQLRequestModel.EndCursor
                 }
@@ -159,14 +157,14 @@ namespace GitHubStats.Service
                 .SendQueryAsync<GraphQLResponseModel>(graphQLRequest);
         }
 
-        private StringBuilder LocationBuilder(List<string> City)
+        private StringBuilder LocationBuilder(List<string> searchList)
         {
-            StringBuilder cityList = new StringBuilder();
-            foreach (string city in City)
+            StringBuilder locationList = new StringBuilder();
+            foreach (string searchItem in searchList)
             {
-                cityList.Append("location:" + city + " ");
+                locationList.Append("location:" + searchItem + " ");
             }
-            return cityList;
+            return locationList;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace GitHubStats.Models
         public class CountryModel
         {
             public string Name { get; set; }
-            public List<string> City { get; set;  }
+            public List<string> Search { get; set;  }
         }
     }
 }

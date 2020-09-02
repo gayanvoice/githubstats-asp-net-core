@@ -1,9 +1,9 @@
 ﻿using GitHubStats.Models;
 using GitHubStats.Service;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace GitHubStats.Controllers
 {
@@ -12,70 +12,42 @@ namespace GitHubStats.Controllers
     public class ApiController : ControllerBase
     {
         private readonly CountryService _countryService;
-        private readonly GraphQLService _graphQLService;
-
+        private readonly ILogger<ApiController> _logger;
+        private readonly GitHubModel _gitHubModel;
         public ApiController(CountryService userService,
-                             GraphQLService graphQLService)
+                             ILogger<ApiController> logger,
+                             GitHubModel gitHubModel)
         {
             _countryService = userService;
-            _graphQLService = graphQLService;
+            _logger = logger;
+            _gitHubModel = gitHubModel;
         }
 
-        [HttpGet("country/getList")]
-        public ActionResult<List<CountryModel>> GetCountryList()
+
+        [HttpGet("country/list")]
+        public ActionResult<List<GitHubModel.CountryModel>> GetCountryList()
         {
-            return _countryService.GetList();
+            return _gitHubModel.Country;
         }
 
-        [HttpGet("country/getCountry/{countryName}", Name = "GetCountry")]
-        public ActionResult<CountryModel> GetCountry(string countryName)
+        [HttpGet("country/{countryName}/{limit}/{skip}")]
+        public ActionResult<List<UserBsonModel>> GetUsersByLocation(string countryName, int limit, int skip)
         {
-            CountryModel country = _countryService.GetCountry(countryName);
-            if (country == null)
+            FindUserRequestModel findUserRequestModel = new FindUserRequestModel();
+            findUserRequestModel.CountryName = countryName;
+            findUserRequestModel.Limit = limit;
+            findUserRequestModel.Skip = skip;
+            var userList =_countryService.GetUserListByCountry(findUserRequestModel);
+            if (userList.Count == 0)
             {
-                return NotFound();
-            }
-            else
-            {
-                return country;
-            }
-        }
-
-        [HttpPost("country/createCountry")]
-        public ActionResult<CountryModel> CreateCountry(CountryModel countryModel)
-        {
-            _countryService.CreateCountry(countryModel);
-            return CreatedAtRoute("GetCountry", new {country = countryModel.CountryName}, countryModel);
-        }
-
-        [HttpPut("country/updateCountry/{countryName}")]
-        public IActionResult UpdateUser(string countryName, CountryModel countryModel)
-        {
-            CountryModel country = _countryService.GetCountry(countryName);
-            if (country == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                _countryService.UpdateCountry(countryName, countryModel);
+                _logger.LogInformation("no users");
                 return NoContent();
             }
+            else
+            {
+                _logger.LogInformation("available users");
+                return userList;
+            }
         }
-
-        //[HttpGet("country/getGraph")]
-        //public ActionResult<string> GetGraph()
-        //{
-            //GraphQLRequestModel graphQLRequestModel = new GraphQLRequestModel("india", 10, null);
-            //var graphQLResponse =  _graphQLService.GetGraphQLHttpResponse(graphQLRequestModel);
-            //try
-         //   {
-           //     return JsonSerializer
-             //   .Serialize(graphQLResponse, new JsonSerializerOptions { WriteIndented = true });
-        //    }
-           // catch (Exception) { 
-         //       return BadRequest();
-          //  }
-       // }
     }
 }
