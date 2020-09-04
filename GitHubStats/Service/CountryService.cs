@@ -26,8 +26,13 @@ namespace GitHubStats.Service
                 .Find<UserBsonModel>(filter)        
                 .SortByDescending(user => user.ContributionsCollection.ContributionCalendar.TotalContributions)
                 .Limit(findUserRequestModel.Limit)
-                .Skip(findUserRequestModel.Skip)
                 .ToList();
+        }
+
+        public int GetNumberOfUsersByCountry(FindUserRequestModel findUserRequestModel)
+        {
+            var filter = Builders<UserBsonModel>.Filter.Eq("country", findUserRequestModel.CountryName);
+            return (int)collection.Find<UserBsonModel>(filter).CountDocuments();
         }
         public async Task UpdateOneUserAsync(string countryName, UserNodeModel userNodeModel)
         {

@@ -9,5 +9,7 @@ namespace GitHubStats.Service
     {
         Task UpdateOneUserAsync(string countryName, GraphQLResponseModel.SearchModel.EdgeModel.UserNodeModel edgeModel);
         List<UserBsonModel> GetUserListByCountry(FindUserRequestModel findUserRequestModel);
+
+        int GetNumberOfUsersByCountry(FindUserRequestModel findUserRequestModel);
     }
 }

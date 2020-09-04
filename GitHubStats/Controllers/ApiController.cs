@@ -30,13 +30,12 @@ namespace GitHubStats.Controllers
             return _gitHubModel.Country;
         }
 
-        [HttpGet("country/{countryName}/{limit}/{skip}")]
-        public ActionResult<List<UserBsonModel>> GetUsersByLocation(string countryName, int limit, int skip)
+        [HttpGet("country/{countryName}/{limit}")]
+        public ActionResult<List<UserBsonModel>> GetUsersByLocation(string countryName, int limit)
         {
             FindUserRequestModel findUserRequestModel = new FindUserRequestModel();
             findUserRequestModel.CountryName = countryName;
             findUserRequestModel.Limit = limit;
-            findUserRequestModel.Skip = skip;
             var userList =_countryService.GetUserListByCountry(findUserRequestModel);
             if (userList.Count == 0)
             {
