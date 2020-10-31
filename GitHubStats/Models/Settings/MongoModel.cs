@@ -10,7 +10,6 @@
         public class CollectionModel
         {
             public string User { get; set; }
-            public string Country { get; set; }
         }
     }
 }

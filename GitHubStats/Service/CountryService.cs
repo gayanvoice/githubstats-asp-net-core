@@ -39,7 +39,6 @@ namespace GitHubStats.Service
 
             BsonDocument bsonDocument = new BsonDocument();
             bsonDocument.Add("$set", userNodeModel.ToBsonDocument().Add("country", countryName));
-
             await collection.UpdateOneAsync(new BsonDocument { { "login", userNodeModel.login}},
                                             bsonDocument,
                                             new UpdateOptions{ IsUpsert = true });

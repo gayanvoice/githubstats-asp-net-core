@@ -15,7 +15,7 @@ namespace GitHubStats.Service
     public class GraphQLService : BackgroundService
     {
         private readonly ILogger<GraphQLService> _logger;
-        private readonly GraphQLHttpClient _graphQLHttpClient;
+        private GraphQLHttpClient _graphQLHttpClient;
         private readonly ICountryService _countryService;
         private readonly GitHubModel _gitHubModel;
         private GitHubModel.CountryModel countryModel;
@@ -25,17 +25,16 @@ namespace GitHubStats.Service
         private GraphQLHttpResponse<GraphQLResponseModel> graphQLResponseModel;
         public GraphQLService(ILogger<GraphQLService> logger,
                               ICountryService countryService,
-                              GraphQLModel graphModel,
                               GitHubModel gitHubModel)
         {
             _logger = logger;
             _countryService = countryService;
-            _graphQLHttpClient = new GraphQLContext(graphModel).graphQLHttpClient;
             _gitHubModel = gitHubModel;
             countryModel = _gitHubModel.Country.First();
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _graphQLHttpClient = new GraphQLContext(await new RestContext().RequestGitHubAuthorizationKeys()).graphQLHttpClient;
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (hasNextPage)
@@ -62,6 +61,7 @@ namespace GitHubStats.Service
                     {
                         hasNextPage = false;
                         _logger.LogInformation("Max Cap NumberOfUsers");
+                        await Task.Delay(TimeSpan.FromMinutes(_gitHubModel.DelayTaskTimeInMinutes), stoppingToken);
                     }
                 }
                 else
@@ -75,6 +75,7 @@ namespace GitHubStats.Service
                 await Task.Delay(TimeSpan.FromSeconds(_gitHubModel.ElapsedTimeInSeconds), stoppingToken);
             }
         }
+
         private GitHubModel.CountryModel GetCountryModel(string countryName)
         {
             int countryIndex;
@@ -88,12 +89,13 @@ namespace GitHubStats.Service
             if ((countryIndex) < (lastCountryIndex))
             {
                 return _gitHubModel.Country.ElementAt(nextCountryIndex++);
-            } 
+            }
             else
             {
                 return _gitHubModel.Country.ElementAt(0);
-            } 
+            }
         }
+
         public async Task<GraphQLHttpResponse<GraphQLResponseModel>> AddUser(GraphQLRequestModel graphQLRequestModel)
         {
             var graphQLResponse = await GetGraphQLHttpResponse(graphQLRequestModel);
@@ -105,11 +107,11 @@ namespace GitHubStats.Service
                         await _countryService.UpdateOneUserAsync(graphQLRequestModel.Country.Name, userNode.node);
                         _logger.LogInformation("Updated User {user} {countryName}", userNode.node.login, graphQLRequestModel.Country.Name);
                     }
-                }  
+                }
             }
             return graphQLResponse;
         }
-            public async Task<GraphQLHttpResponse<GraphQLResponseModel>> GetGraphQLHttpResponse(GraphQLRequestModel graphQLRequestModel)
+        public async Task<GraphQLHttpResponse<GraphQLResponseModel>> GetGraphQLHttpResponse(GraphQLRequestModel graphQLRequestModel)
         {
             var graphQLRequest = new GraphQLRequest
             {
