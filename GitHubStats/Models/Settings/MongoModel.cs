@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GitHubStats.Models
+﻿namespace GitHubStats.Models
 {
     public class MongoModel
     {
@@ -12,7 +10,6 @@ namespace GitHubStats.Models
         public class CollectionModel
         {
             public string User { get; set; }
-            public string Country { get; set; }
         }
     }
 }

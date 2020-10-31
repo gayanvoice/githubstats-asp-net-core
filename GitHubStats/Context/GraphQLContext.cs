@@ -6,13 +6,13 @@ namespace GitHubStats.Context
 {
     public class GraphQLContext
     {
-        public GraphQLContext(GraphQLModel graphModel)
+        public GraphQLContext(GraphQLModel graphQLModel)
         {
-            graphQLHttpClient = new GraphQLHttpClient(graphModel.Connection, new NewtonsoftJsonSerializer());
+            graphQLHttpClient = new GraphQLHttpClient(graphQLModel.Connection, new NewtonsoftJsonSerializer());
             graphQLHttpClient
                 .HttpClient
                 .DefaultRequestHeaders
-                .Add("Authorization", graphModel.Authentication);
+                .Add("Authorization", graphQLModel.Authentication);
         }
         public GraphQLHttpClient graphQLHttpClient { get; }
     }

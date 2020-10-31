@@ -31,12 +31,13 @@ namespace GitHubStats
             services.AddSingleton<GitHubModel>(sp => sp.GetRequiredService<IOptions<GitHubModel>>().Value);
             services.AddSingleton<CountryService>();
             services.AddHostedService<GraphQLService>();
-            services.AddTransient<IEdgeService, EdgeService>();
+            services.AddTransient<ICountryService, CountryService>();
             services.AddControllersWithViews().AddNewtonsoftJson();
             services.AddControllersWithViews(options =>
             {
                 options.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
             });
+            services.AddRouting(options => options.LowercaseUrls = true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +59,7 @@ namespace GitHubStats
             app.UseRouting();
 
             app.UseAuthorization();
+            
 
             app.UseEndpoints(endpoints =>
             {
