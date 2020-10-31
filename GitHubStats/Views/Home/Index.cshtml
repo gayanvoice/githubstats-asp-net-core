@@ -1,8 +1,22 @@
-﻿@{
+﻿@model GitHubModel.CountryModel
+@{
     ViewData["Title"] = "Home Page";
+    var gitHubModel = ViewData["gitHubViewModel"] as GitHubModel;
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">Country</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+
+<ul>
+    @foreach (var country in gitHubModel.Country)
+    {
+    <li>
+        <a href='@string.Format("country?name={0}&limit=500", country.Name)' class="text-capitalize">@country.Search.First()</a>
+    </li>
+    }
+</ul>
+
+
+

@@ -1,0 +1,26 @@
+﻿@{
+    var name = ViewData["name"];
+    var userList = ViewData["userList"] as List<UserBsonModel>;
+    ViewData["Title"] = name;
+}
+<h1>Page @name</h1>
+
+<p>Use this page to detail your site's privacy policy. </p>
+
+<ol>
+    @if (userList == null)
+    {
+        <p>Country does not exist </p>
+
+    }
+    else
+    {
+       
+        @foreach (var user in userList)
+        {
+            <li>
+                @user.Login <b>@user.ContributionsCollection.ContributionCalendar.TotalContributions</b>
+            </li>
+        }
+    }
+</ol>

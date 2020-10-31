@@ -4,49 +4,49 @@ namespace GitHubStats.Models
 {
     public class GraphQLResponseModel
     {
-        public Search search { get; set; }
-        public class Search
+        public SearchModel search { get; set; }
+        public class SearchModel
         {
-            public List<Edge> edges { get; set; }
-            public PageInfo pageInfo { get; set; }
-            public class Edge
+            public List<EdgeModel> edges { get; set; }
+            public PageInfoModel pageInfo { get; set; }
+            public class EdgeModel
             {
-                public UserNode node { get; set; }
-                public class UserNode
+                public UserNodeModel node { get; set; }
+                public class UserNodeModel
                 {
                     public string login { get; set; }
                     public string name { get; set; }
                     public string avatarUrl { get; set; }
                     public string company { get; set; }
                     public string location { get; set; }
-                    public Organizations organizations { get; set; }
-                    public class Organizations
+                    public OrganizationsModel organizations { get; set; }
+                    public class OrganizationsModel
                     {
-                        public List<OrganizationNode> nodes { get; set; }
+                        public List<OrganizationNodeModel> nodes { get; set; }
 
-                        public class OrganizationNode
+                        public class OrganizationNodeModel
                         {
                             public string login { get; set; }
                         }
                     }
-                    public Followers followers { get; set; }
-                    public class Followers
+                    public FollowersModel followers { get; set; }
+                    public class FollowersModel
                     {
                         public int totalCount { get; set; }
                     }
-                    public ContributionsCollection contributionsCollection { get; set; }
-                    public class ContributionsCollection
+                    public ContributionsCollectionModel contributionsCollection { get; set; }
+                    public class ContributionsCollectionModel
                     {
                         public int restrictedContributionsCount { get; set; }
-                        public ContributionCalendar contributionCalendar { get; set; }
-                        public class ContributionCalendar
+                        public ContributionCalendarModel contributionCalendar { get; set; }
+                        public class ContributionCalendarModel
                         {
                             public int totalContributions { get; set; }
                         }
                     }
                 }
             }
-            public class PageInfo
+            public class PageInfoModel
             {
                 public string endCursor { get; set; }
                 public bool hasNextPage { get; set; }
